@@ -1,699 +1,239 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roblox Universe - Play, Create & Share</title>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Three.js Library for 3D Roblox Studio Engine -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <style>
-    :root {
-      --bg-main: #0f1115;
-      --bg-sidebar: #171a21;
-      --bg-card: #222631;
-      --bg-card-hover: #2d3342;
-      --text-main: #ffffff;
-      --text-muted: #a0a5b5;
-      --accent-green: #00b06f;
-      --accent-blue: #0074e0;
-      --accent-red: #e74c3c;
-      --border-color: #2f3542;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      user-select: none;
-    }
-
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* AUTH SCREEN */
-    #auth-screen {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #0d0e12, #1a1f2c);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    .auth-box {
-      background: var(--bg-sidebar);
-      padding: 40px;
-      border-radius: 16px;
-      width: 380px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      text-align: center;
-    }
-
-    .auth-box .logo-area {
-      font-size: 28px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .auth-box .logo-area svg {
-      width: 38px;
-      height: 38px;
-      fill: #fff;
-    }
-
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .auth-form input {
-      background: var(--bg-main);
-      border: 1px solid var(--border-color);
-      padding: 12px 15px;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .auth-form input:focus {
-      border-color: var(--accent-blue);
-    }
-
-    .btn {
-      background: var(--accent-blue);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .btn:hover {
-      opacity: 0.9;
-    }
-
-    .btn-green {
-      background: var(--accent-green);
-    }
-
-    /* MAIN APP LAYOUT */
-    #app {
-      display: none;
-      height: 100vh;
-      width: 100vw;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      width: 240px;
-      background: var(--bg-sidebar);
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 20px 15px;
-      height: 100vh;
-    }
-
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 22px;
-      font-weight: bold;
-      padding-left: 10px;
-      margin-bottom: 30px;
-    }
-
-    .logo-area svg {
-      width: 30px;
-      height: 30px;
-      fill: white;
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .nav-links li {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 12px 15px;
-      color: var(--text-muted);
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nav-links li.active, .nav-links li:hover {
-      background: var(--bg-card);
-      color: var(--text-main);
-    }
-
-    /* MAIN CONTENT VIEWPORTS */
-    .main-viewport {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow-y: auto;
-    }
-
-    header {
-      height: 70px;
-      background: var(--bg-main);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 30px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .search-bar {
-      display: flex;
-      align-items: center;
-      background: var(--bg-sidebar);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 8px 16px;
-      width: 320px;
-    }
-
-    .search-bar input {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: white;
-      margin-left: 10px;
-      width: 100%;
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .avatar-circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #0074e0, #00b06f);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    /* VIEWS */
-    .view-page {
-      display: none;
-      padding: 30px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .view-page.active-view {
-      display: block;
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: bold;
-      margin: 25px 0 15px 0;
-    }
-
-    /* CARDS GRID */
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .game-card {
-      background: var(--bg-card);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: transform 0.2s, background-color 0.2s;
-    }
-
-    .game-card:hover {
-      transform: translateY(-5px);
-      background: var(--bg-card-hover);
-    }
-
-    .game-thumbnail {
-      height: 140px;
-      background: linear-gradient(135deg, #1f293d, #2d3748);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-    }
-
-    .game-info {
-      padding: 12px;
-    }
-
-    .game-title {
-      font-weight: 700;
-      font-size: 15px;
-      margin-bottom: 5px;
-    }
-
-    .game-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* ROBLOX STUDIO ENVIRONMENT */
-    #studio-view {
-      padding: 0 !important;
-      height: calc(100vh - 70px);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .studio-toolbar {
-      height: 50px;
-      background: #1e222d;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      padding: 0 15px;
-      gap: 10px;
-    }
-
-    .studio-btn {
-      background: #2b303e;
-      color: white;
-      border: 1px solid var(--border-color);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .studio-btn:hover {
-      background: #383e50;
-    }
-
-    .studio-workspace {
-      flex: 1;
-      display: flex;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #studio-viewport {
-      flex: 1;
-      background: #050505;
-    }
-
-    .studio-panel {
-      width: 250px;
-      background: #171a21;
-      border-left: 1px solid var(--border-color);
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .studio-panel h4 {
-      font-size: 14px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 5px;
-      color: var(--text-muted);
-    }
-
-    .explorer-tree {
-      list-style: none;
-      font-size: 13px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .explorer-tree li {
-      padding: 5px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .explorer-tree li:hover {
-      background: var(--bg-card);
-    }
-
-    /* MODAL */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: var(--bg-sidebar);
-      padding: 30px;
-      border-radius: 12px;
-      width: 450px;
-      border: 1px solid var(--border-color);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BlockWorld</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#11141c;color:white;font:16px Arial}
+header{padding:18px;background:#202635;display:flex;justify-content:space-between;align-items:center}
+h1{color:#60a5fa;margin:0}
+nav{display:flex;gap:7px;flex-wrap:wrap;padding:12px;background:#191e29}
+button{padding:11px;border:0;border-radius:8px;background:#30394b;color:white;font-weight:bold;cursor:pointer}
+button:hover{background:#3b82f6}
+main{padding:16px;max-width:1000px;margin:auto}
+.page{display:none}.page.active{display:block}
+.card{background:#202635;padding:18px;border-radius:12px;margin:12px 0}
+input{padding:12px;border-radius:7px;border:1px solid #46516a;background:#11141c;color:white;max-width:100%;width:100%;margin:7px 0}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.game{background:#252e40;border-radius:12px;padding:16px;text-align:center}
+.art{font-size:48px;padding:16px}
+#avatar{font-size:100px;text-align:center;padding:30px}
+#world{height:300px;background:#202635;border-radius:12px;overflow:hidden}
+canvas{width:100%;height:100%;display:block}
+#messages{height:230px;overflow:auto;background:#11141c;padding:10px;border-radius:8px}
+.msg{background:#29354a;border-radius:9px;padding:8px;margin:7px 0;overflow-wrap:anywhere}
+small{color:#aebbd0}
+</style>
 </head>
 <body>
+<header>
+<h1>🧱 BlockWorld</h1>
+<span id="who">Guest</span>
+</header>
+<nav>
+<button onclick="show('home')">🏠 Home</button>
+<button onclick="show('games')">🎮 Games</button>
+<button onclick="show('avatarPage')">👤 Avatar</button>
+<button onclick="show('chat')">💬 Chat</button>
+<button onclick="show('studio')">🛠 Studio</button>
+<button onclick="show('profile')">⭐ Profile</button>
+</nav>
+<main>
+<section id="login" class="page active">
+<div class="card">
+<h2>Welcome to BlockWorld!</h2>
+<p>A fan-made block gaming platform.</p>
+<input id="username" maxlength="20" placeholder="Choose a display name">
+<button onclick="login()">Enter BlockWorld</button>
+<button onclick="guest()">Continue as Guest</button>
+<p><small>Demo accounts only. Never enter your real Roblox password.</small></p>
+</div>
+</section>
 
-  <!-- AUTH SCREEN -->
-  <div id="auth-screen">
-    <div class="auth-box">
-      <div class="logo-area">
-        <svg viewBox="0 0 24 24"><path d="M18.9 3.5L5.1 8.2l-3.5 13.8 13.8-4.7 3.5-13.8zm-9.3 11l-2.6-.9.9-2.6 2.6.9-.9 2.6z"/></svg>
-        Roblox
-      </div>
-      <p style="color: var(--text-muted); font-size: 14px;">Log in or create a new account</p>
-      <form class="auth-form" onsubmit="handleAuth(event)">
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit" class="btn btn-green">Log In</button>
-        <button type="button" class="btn" style="background:#333;" onclick="handleAuth(event)">Sign Up</button>
-      </form>
-    </div>
-  </div>
+<section id="home" class="page">
+<div class="card">
+<h2>Play. Create. Explore.</h2>
+<p>Welcome to your blocky universe!</p>
+<button onclick="show('games')">Explore games →</button>
+<button onclick="show('studio')">Build a world →</button>
+</div>
+<h2>Featured</h2>
+<div class="games">
+<div class="game"><div class="art">🏃</div>Obby Tower</div>
+<div class="game"><div class="art">🐾</div>Pet World</div>
+<div class="game"><div class="art">🏙️</div>City Life</div>
+<div class="game"><div class="art">🌊</div>Tsunami Escape</div>
+</div>
+</section>
 
-  <!-- MAIN ROBLOX WEBSITE -->
-  <div id="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div>
-        <div class="logo-area">
-          <svg viewBox="0 0 24 24"><path d="M18.9 3.5L5.1 8.2l-3.5 13.8 13.8-4.7 3.5-13.8zm-9.3 11l-2.6-.9.9-2.6 2.6.9-.9 2.6z"/></svg>
-          Roblox
-        </div>
-        <ul class="nav-links">
-          <li class="active" onclick="switchTab('home-view', this)"><i class="fa-solid fa-house"></i> Home</li>
-          <li onclick="switchTab('discover-view', this)"><i class="fa-solid fa-compass"></i> Discover</li>
-          <li onclick="switchTab('avatar-view', this)"><i class="fa-solid fa-user-astronaut"></i> Avatar</li>
-          <li onclick="switchTab('create-view', this)"><i class="fa-solid fa-hammer"></i> Create</li>
-          <li onclick="switchTab('studio-view', this); initStudio();"><i class="fa-solid fa-cubes"></i> Roblox Studio</li>
-        </ul>
-      </div>
-      <div style="font-size: 12px; color: var(--text-muted); text-align: center;">
-        <button class="btn" style="width: 100%; background: #222;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button>
-      </div>
-    </aside>
+<section id="games" class="page">
+<h2>Discover Games</h2>
+<input id="search" placeholder="Search games..." oninput="searchGames()">
+<div class="games" id="gameList">
+<div class="game">🏃<p>Obby Tower</p><button onclick="play('Obby Tower')">Play</button></div>
+<div class="game">🐾<p>Pet World</p><button onclick="play('Pet World')">Play</button></div>
+<div class="game">🏙️<p>City Life</p><button onclick="play('City Life')">Play</button></div>
+<div class="game">🌊<p>Tsunami Escape</p><button onclick="play('Tsunami Escape')">Play</button></div>
+</div>
+<p id="gameMessage"></p>
+</section>
 
-    <!-- VIEWPORT CONTENT -->
-    <div class="main-viewport">
-      <header>
-        <div class="search-bar">
-          <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-          <input type="text" placeholder="Search experiences, shop items...">
-        </div>
-        <div class="user-profile">
-          <div style="text-align: right;">
-            <div id="display-username" style="font-weight: bold; font-size: 14px;">User</div>
-            <div style="font-size: 12px; color: var(--accent-green); font-weight: bold;"><i class="fa-solid fa-coins"></i> R$ 1,500</div>
-          </div>
-          <div class="avatar-circle" id="user-avatar">U</div>
-        </div>
-      </header>
+<section id="avatarPage" class="page">
+<h2>Avatar Editor</h2>
+<div class="card">
+<div id="avatar">🧍</div>
+<button onclick="setAvatar('🧍')">Classic</button>
+<button onclick="setAvatar('🦸')">Hero</button>
+<button onclick="setAvatar('🧙')">Wizard</button>
+<button onclick="setAvatar('🧑‍🚀')">Space</button>
+<h3>Character color</h3>
+<button onclick="color('#3b82f6')">Blue</button>
+<button onclick="color('#22c55e')">Green</button>
+<button onclick="color('#ef4444')">Red</button>
+<button onclick="color('#e879f9')">Pink</button>
+<button onclick="saveAvatar()">Save avatar</button>
+</div>
+</section>
 
-      <!-- HOME VIEW -->
-      <div id="home-view" class="view-page active-view">
-        <h1 id="welcome-msg">Welcome Back!</h1>
-        <div class="section-title">Continue Playing</div>
-        <div class="games-grid" id="home-games"></div>
+<section id="chat" class="page">
+<h2>💬 World Chat</h2>
+<div class="card">
+<p><small>Demo chat: messages appear only in this browser. Online shared chat requires a backend.</small></p>
+<div id="messages"></div>
+<input id="chatInput" maxlength="200" placeholder="Write a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+<button onclick="sendMessage()">Send</button>
+</div>
+<h3>Bubble Chat Preview</h3>
+<div class="card"><span id="bubble">🧍</span> <span id="bubbleText">Hello, world!</span></div>
+</section>
 
-        <div class="section-title">Recommended For You</div>
-        <div class="games-grid" id="recommended-games"></div>
-      </div>
+<section id="studio" class="page">
+<h2>🛠 3D Mini Studio</h2>
+<p><small>Tap the canvas to add blocks. Drag to rotate the view.</small></p>
+<div id="world"><canvas id="canvas"></canvas></div>
+<div class="card">
+<button onclick="addBlock()">➕ Add Block</button>
+<button onclick="removeBlock()">➖ Remove Block</button>
+<button onclick="changeBlocks()">🎨 Change Colors</button>
+<button onclick="saveWorld()">💾 Save</button>
+<button onclick="resetWorld()">🗑 Clear</button>
+<p id="buildStatus"></p>
+</div>
+</section>
 
-      <!-- DISCOVER VIEW -->
-      <div id="discover-view" class="view-page">
-        <h1>Discover Experiences</h1>
-        <div class="games-grid" id="discover-games" style="margin-top: 20px;"></div>
-      </div>
-
-      <!-- AVATAR SHOP VIEW -->
-      <div id="avatar-view" class="view-page">
-        <h1>Avatar Shop</h1>
-        <div class="games-grid" id="avatar-items" style="margin-top: 20px;"></div>
-      </div>
-
-      <!-- CREATE VIEW -->
-      <div id="create-view" class="view-page">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h1>My Experiences</h1>
-          <button class="btn btn-green" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Create New Experience</button>
-        </div>
-        <div class="games-grid" id="created-games" style="margin-top: 20px;"></div>
-      </div>
-
-      <!-- ROBLOX STUDIO WEB VIEW -->
-      <div id="studio-view" class="view-page">
-        <div class="studio-toolbar">
-          <button class="studio-btn" onclick="addStudioBlock('cube')"><i class="fa-solid fa-cube"></i> Add Block</button>
-          <button class="studio-btn" onclick="addStudioBlock('sphere')"><i class="fa-solid fa-circle"></i> Add Sphere</button>
-          <button class="studio-btn" onclick="clearStudio()"><i class="fa-solid fa-trash"></i> Clear</button>
-          <div style="flex:1;"></div>
-          <button class="studio-btn" style="background: var(--accent-green);" onclick="alert('Publishing Experience to Roblox Engine...')"><i class="fa-solid fa-upload"></i> Publish</button>
-        </div>
-        <div class="studio-workspace">
-          <div id="studio-viewport"></div>
-          <div class="studio-panel">
-            <h4>Explorer</h4>
-            <ul class="explorer-tree" id="explorer-tree">
-              <li><i class="fa-solid fa-folder"></i> Workspace</li>
-              <li style="padding-left: 15px;"><i class="fa-solid fa-sun"></i> DirectionalLight</li>
-              <li style="padding-left: 15px;"><i class="fa-solid fa-border-all"></i> Baseplate</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- CREATE GAME MODAL -->
-  <div class="modal" id="create-modal">
-    <div class="modal-content">
-      <h2>Create Experience</h2>
-      <div class="auth-form" style="margin-top: 15px;">
-        <input type="text" id="new-game-title" placeholder="Experience Title">
-        <input type="text" id="new-game-icon" placeholder="Icon Emoji (e.g. ⚔️, 🏎️, 🏰)">
-        <button class="btn btn-green" onclick="createNewExperience()">Create</button>
-        <button class="btn" style="background:#444;" onclick="closeCreateModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT ENGINE -->
-  <script>
-    // GLOBAL STATE
-    const state = {
-      currentUser: null,
-      games: [
-        { id: 1, title: 'Blox Fruits', icon: '🌊', active: '350K', rating: '95%' },
-        { id: 2, title: 'BedWars', icon: '⚔️', active: '42K', rating: '92%' },
-        { id: 3, title: 'Adopt Me!', icon: '🐶', active: '110K', rating: '89%' },
-        { id: 4, title: 'Doors', icon: '🚪', active: '28K', rating: '94%' },
-        { id: 5, title: 'Blade Ball', icon: '⚡', active: '55K', rating: '91%' },
-        { id: 6, title: 'Arsenal', icon: '🎯', active: '15K', rating: '90%' }
-      ],
-      avatarItems: [
-        { name: 'Dominus Empyreus', icon: '👑', price: 'R$ 50,000' },
-        { name: 'Valkyrie Helm', icon: '🪖', price: 'R$ 15,000' },
-        { name: 'Frost Wings', icon: '🪽', price: 'R$ 1,200' },
-        { name: 'Red Fedora', icon: '🎩', price: 'R$ 250' }
-      ],
-      createdGames: []
-    };
-
-    // AUTHENTICATION
-    function handleAuth(e) {
-      e.preventDefault();
-      const user = document.getElementById('username').value || 'PlayerOne';
-      state.currentUser = user;
-      
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      
-      document.getElementById('display-username').innerText = user;
-      document.getElementById('user-avatar').innerText = user.charAt(0).toUpperCase();
-      document.getElementById('welcome-msg').innerText = `Welcome Back, ${user}!`;
-
-      renderAll();
-    }
-
-    function logout() {
-      state.currentUser = null;
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('auth-screen').style.display = 'flex';
-    }
-
-    // TAB SWITCHING
-    function switchTab(viewId, element) {
-      document.querySelectorAll('.view-page').forEach(el => el.classList.remove('active-view'));
-      document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(viewId).classList.add('active-view');
-      element.classList.add('active');
-    }
-
-    // RENDER UI
-    function renderAll() {
-      const renderGameCard = g => `
-        <div class="game-card" onclick="playGame('${g.title}')">
-          <div class="game-thumbnail">${g.icon}</div>
-          <div class="game-info">
-            <div class="game-title">${g.title}</div>
-            <div class="game-stats">
-              <span><i class="fa-solid fa-user"></i> ${g.active}</span>
-              <span><i class="fa-solid fa-star" style="color: #f1c40f;"></i> ${g.rating}</span>
-            </div>
-          </div>
-        </div>
-      `;
-
-      document.getElementById('home-games').innerHTML = state.games.slice(0, 3).map(renderGameCard).join('');
-      document.getElementById('recommended-games').innerHTML = state.games.map(renderGameCard).join('');
-      document.getElementById('discover-games').innerHTML = state.games.map(renderGameCard).join('');
-
-      // Render Avatar Shop
-      document.getElementById('avatar-items').innerHTML = state.avatarItems.map(item => `
-        <div class="game-card" onclick="alert('Purchased ${item.name}!')">
-          <div class="game-thumbnail">${item.icon}</div>
-          <div class="game-info">
-            <div class="game-title">${item.name}</div>
-            <div style="font-size: 13px; color: var(--accent-green); font-weight: bold; margin-top:5px;">${item.price}</div>
-          </div>
-        </div>
-      `).join('');
-
-      // Render Created Games
-      document.getElementById('created-games').innerHTML = state.createdGames.length ? 
-        state.createdGames.map(renderGameCard).join('') : `<p style="color:var(--text-muted)">No created experiences yet.</p>`;
-    }
-
-    function playGame(title) {
-      alert(`Connecting to server for "${title}"...\nLaunching Roblox Client.`);
-    }
-
-    // MODAL & EXPERIENCE CREATOR
-    function openCreateModal() { document.getElementById('create-modal').style.display = 'flex'; }
-    function closeCreateModal() { document.getElementById('create-modal').style.display = 'none'; }
-
-    function createNewExperience() {
-      const title = document.getElementById('new-game-title').value || 'My New Place';
-      const icon = document.getElementById('new-game-icon').value || '🎮';
-      
-      state.createdGames.push({ id: Date.now(), title, icon, active: '1', rating: '100%' });
-      closeCreateModal();
-      renderAll();
-    }
-
-    // ROBLOX STUDIO THREE.JS ENGINE
-    let scene, camera, renderer, studioInit = false;
-    let studioObjects = [];
-
-    function initStudio() {
-      if (studioInit) return;
-      studioInit = true;
-
-      const container = document.getElementById('studio-viewport');
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x11141c);
-
-      camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(10, 10, 15);
-      camera.lookAt(0, 0, 0);
-
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      container.appendChild(renderer.domElement);
-
-      // Lights & Baseplate Grid
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(10, 20, 15);
-      scene.add(light);
-      scene.add(new THREE.AmbientLight(0x666666));
-
-      const gridHelper = new THREE.GridHelper(30, 30, 0x0074e0, 0x2f3542);
-      scene.add(gridHelper);
-
-      function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-      }
-      animate();
-    }
-
-    function addStudioBlock(type) {
-      if (!scene) return;
-      let mesh;
-      const mat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
-
-      if (type === 'cube') {
-        mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), mat);
-      } else {
-        mesh = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16), mat);
-      }
-
-      mesh.position.set((Math.random() - 0.5) * 10, 1, (Math.random() - 0.5) * 10);
-      scene.add(mesh);
-      studioObjects.push(mesh);
-
-      // Update Explorer UI
-      const tree = document.getElementById('explorer-tree');
-      const item = document.createElement('li');
-      item.style.paddingLeft = '15px';
-      item.innerHTML = `<i class="fa-solid fa-cube"></i> ${type === 'cube' ? 'Part' : 'SpherePart'}`;
-      tree.appendChild(item);
-    }
-
-    function clearStudio() {
-      studioObjects.forEach(obj => scene.remove(obj));
-      studioObjects = [];
-    }
-  </script>
+<section id="profile" class="page">
+<h2>My Profile</h2>
+<div class="card">
+<div id="profileAvatar" style="font-size:65px">🙂</div>
+<h3 id="profileName">Guest</h3>
+<p>BlockWorld member</p>
+<button onclick="show('avatarPage')">Edit Avatar</button>
+</div>
+</section>
+</main>
+<script>
+let name='Guest',avatar='🧍',blocks=[];
+function show(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ if(id==='studio')draw();
+}
+function login(){
+ name=document.getElementById('username').value.trim()||'Builder';
+ start();
+}
+function guest(){name='Guest';start()}
+function start(){
+ document.getElementById('login').classList.remove('active');
+ document.getElementById('who').textContent=name;
+ document.getElementById('profileName').textContent=name;
+ show('home');
+}
+function setAvatar(a){
+ avatar=a;document.getElementById('avatar').textContent=a;
+ document.getElementById('profileAvatar').textContent=a;
+ document.getElementById('bubble').textContent=a;
+}
+function color(c){document.getElementById('avatar').style.color=c}
+function saveAvatar(){
+ localStorage.setItem('bwAvatar',avatar);
+ localStorage.setItem('bwColor',document.getElementById('avatar').style.color);
+ alert('Avatar saved on this device!');
+}
+function sendMessage(){
+ const i=document.getElementById('chatInput');
+ const value=i.value.trim();
+ if(!value)return;
+ if(/https?:\/\/|www\./i.test(value)){alert('Links are disabled in this demo chat.');return}
+ const d=document.createElement('div');d.className='msg';
+ const b=document.createElement('b');b.textContent=name+': ';
+ const t=document.createElement('span');t.textContent=value;
+ d.append(b,t);document.getElementById('messages').append(d);
+ document.getElementById('messages').scrollTop=999999;
+ document.getElementById('bubbleText').textContent=value;
+ i.value='';
+}
+function searchGames(){
+ let q=document.getElementById('search').value.toLowerCase();
+ document.querySelectorAll('#gameList .game').forEach(g=>{
+ g.style.display=g.textContent.toLowerCase().includes(q)?'':'none';
+ });
+}
+function play(g){
+ document.getElementById('gameMessage').textContent=
+ g+' is a sample game card. Actual game servers are not connected.';
+}
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+function resize(){
+ const r=canvas.getBoundingClientRect();
+ canvas.width=r.width*devicePixelRatio;
+ canvas.height=r.height*devicePixelRatio;
+ draw();
+}
+function addBlock(){
+ blocks.push({x:Math.random()*0.7+0.15,y:Math.random()*0.55+0.2,c:['#3b82f6','#ef4444','#22c55e','#facc15'][Math.floor(Math.random()*4)]});
+ draw();
+}
+function removeBlock(){blocks.pop();draw()}
+function changeBlocks(){
+ blocks.forEach(b=>b.c='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'));draw();
+}
+function draw(){
+ if(!ctx)return;
+ const w=canvas.width,h=canvas.height;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#18202b';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#ffffff12';ctx.lineWidth=1;
+ for(let x=0;x<w;x+=28*devicePixelRatio){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+ for(let y=0;y<h;y+=28*devicePixelRatio){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+ blocks.forEach(b=>{
+ const x=b.x*w,y=b.y*h,s=48*devicePixelRatio;
+ ctx.fillStyle=b.c;ctx.fillRect(x,y,s,s);
+ ctx.fillStyle='#ffffff30';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+s*.25,y-s*.2);ctx.lineTo(x+s*1.25,y-s*.2);ctx.lineTo(x+s,y);ctx.fill();
+ ctx.fillStyle='#0003';ctx.beginPath();ctx.moveTo(x+s,y);ctx.lineTo(x+s*1.25,y-s*.2);ctx.lineTo(x+s*1.25,y+s*.8);ctx.lineTo(x+s,y+s);ctx.fill();
+ });
+}
+canvas.addEventListener('click',e=>{
+ const r=canvas.getBoundingClientRect();
+ blocks.push({x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,c:'#3b82f6'});
+ draw();
+});
+function saveWorld(){
+ localStorage.setItem('bwBlocks',JSON.stringify(blocks));
+ document.getElementById('buildStatus').textContent='World saved on this device!';
+}
+function resetWorld(){blocks=[];draw()}
+window.addEventListener('resize',resize);
+try{
+ avatar=localStorage.getItem('bwAvatar')||'🧍';
+ blocks=JSON.parse(localStorage.getItem('bwBlocks')||'[]');
+ setAvatar(avatar);
+}catch(e){}
+resize();
+</script>
 </body>
 </html>
